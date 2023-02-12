@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load bootstrap5 %}
-{% block title %} Retailer  {% endblock %}
+{% block title %} Retailer {% endblock %}
 {% block content %}
 
 <body>
@@ -15,7 +15,7 @@
                     <li class="nav-item"><a class="nav-link active" href="#">Your Cart</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Promotions</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Become a Retailer</a></li>
-                </ul><a class="btn btn-primary ms-md-2" role="button" href="#">Sign Out</a>
+                </ul><a class="btn btn-primary ms-md-2" role="button" href="{% url 'mainapp:logout' %}">Sign Out</a>
             </div>
         </div>
     </nav>
@@ -121,11 +121,12 @@
                             <h4 class="card-title">Details of New Product</h4>
                             <h6 class="text-muted card-subtitle mb-2">Enter the details of the new product and we will ship it to right away for you.</h6>
                             <form>
-                                <div style="display: flex;margin-top: 15px;"><label class="form-label" style="font-weight: bold;text-align: left;font-family: Poppins, sans-serif;">Name</label><input class="form-control" type="text" style="margin-left: 89px;width: 505.734px;"></div>
-                                <div style="display: flex;margin-top: 15px;"><label class="form-label" style="font-weight: bold;font-family: Poppins, sans-serif;">Product Price</label><input class="form-control" type="number" style="width: 480.594px;margin-left: 33px;"></div>
-                                <div style="display: flex;margin: 16px 0px 0px;margin-top: 16px;"><label class="form-label" style="font-weight: bold;font-family: Poppins, sans-serif;">Product Description&nbsp;</label><input class="form-control" type="text" style="margin-left: 3px;"></div>
-                                <div style="display: flex;margin-top: 15px;"><label class="form-label" style="font-weight: bold;font-family: Poppins, sans-serif;">Quantity</label><input class="form-control" type="number" style="width: 680.219px;margin-left: 71px;"></div>
-                                <div style="display: flex;margin-top: 16px;"><label class="form-label" style="font-weight: bold;font-family: Poppins, sans-serif;">Category&nbsp;</label><select class="form-select" style="margin-left: 62px;">
+                                {% csrf_token %}
+                                <div style="display: flex;margin-top: 15px;"><label class="form-label" style="font-weight: bold;text-align: left;font-family: Poppins, sans-serif;">Name</label><input class="form-control" type="text" style="margin-left: 89px;width: 505.734px;" id="name"></div>
+                                <div style="display: flex;margin-top: 15px;"><label class="form-label" style="font-weight: bold;font-family: Poppins, sans-serif;">Product Price</label><input class="form-control" type="number" style="width: 480.594px;margin-left: 33px;" id="price"></div>
+                                <div style="display: flex;margin: 16px 0px 0px;margin-top: 16px;"><label class="form-label" style="font-weight: bold;font-family: Poppins, sans-serif;">Product Description&nbsp;</label><input class="form-control" type="text" style="margin-left: 3px;" id="desc"></div>
+                                <div style="display: flex;margin-top: 15px;"><label class="form-label" style="font-weight: bold;font-family: Poppins, sans-serif;">Quantity</label><input class="form-control" type="number" style="width: 680.219px;margin-left: 71px;" id="quantity"></div>
+                                <div style="display: flex;margin-top: 16px;"><label class="form-label" style="font-weight: bold;font-family: Poppins, sans-serif;">Category&nbsp;</label><select class="form-select" style="margin-left: 62px;" id="category">
                                         <option value="0" selected="">Choose a Category</option>
                                         <option value="Electronics">Electronics</option>
                                         <option value="Clothing">Clothing</option>
@@ -151,11 +152,12 @@
                             </div>
                             <div style="margin-top: 26px;">
                                 <form>
-                                    <div style="display: flex;margin-top: 15px;"><label class="form-label" style="font-weight: bold;text-align: left;font-family: Poppins, sans-serif;">Name</label><input class="form-control" type="text" style="margin-left: 89px;width: 505.734px;"></div>
-                                    <div style="display: flex;margin-top: 15px;"><label class="form-label" style="font-weight: bold;font-family: Poppins, sans-serif;">Product Price</label><input class="form-control" type="number" style="width: 480.594px;margin-left: 33px;"></div>
-                                    <div style="display: flex;margin: 16px 0px 0px;margin-top: 16px;"><label class="form-label" style="font-weight: bold;font-family: Poppins, sans-serif;">Product Description&nbsp;</label><input class="form-control" type="text" style="margin-left: 3px;"></div>
-                                    <div style="display: flex;margin-top: 15px;"><label class="form-label" style="font-weight: bold;font-family: Poppins, sans-serif;">Quantity</label><input class="form-control" type="number" style="width: 680.219px;margin-left: 71px;"></div>
-                                    <div style="display: flex;margin-top: 16px;"><label class="form-label" style="font-weight: bold;font-family: Poppins, sans-serif;">Category&nbsp;</label><select class="form-select" style="margin-left: 62px;width: 491.781px;">
+                                    {% csrf_token %}
+                                    <div style="display: flex;margin-top: 15px;"><label class="form-label" style="font-weight: bold;text-align: left;font-family: Poppins, sans-serif;">Name</label><input class="form-control" type="text" style="margin-left: 89px;width: 505.734px;" id="_name"></div>
+                                    <div style="display: flex;margin-top: 15px;"><label class="form-label" style="font-weight: bold;font-family: Poppins, sans-serif;">Product Price</label><input class="form-control" type="number" style="width: 480.594px;margin-left: 33px;" id="_tel"></div>
+                                    <div style="display: flex;margin: 16px 0px 0px;margin-top: 16px;"><label class="form-label" style="font-weight: bold;font-family: Poppins, sans-serif;">Product Description&nbsp;</label><input class="form-control" type="text" style="margin-left: 3px;" id="_desc"></div>
+                                    <div style="display: flex;margin-top: 15px;"><label class="form-label" style="font-weight: bold;font-family: Poppins, sans-serif;">Quantity</label><input class="form-control" type="number" style="width: 680.219px;margin-left: 71px;" id="_quantity"></div>
+                                    <div style="display: flex;margin-top: 16px;"><label class="form-label" style="font-weight: bold;font-family: Poppins, sans-serif;">Category&nbsp;</label><select class="form-select" style="margin-left: 62px;width: 491.781px;" id="_category">
                                             <option value="0" selected="">Choose a Category</option>
                                             <option value="Electronics">Electronics</option>
                                             <option value="Clothing">Clothing</option>
@@ -173,5 +175,5 @@
             </div>
         </div>
     </section>
-    {% includes 'footer.html' %}
+    {% include 'footer.html' %}
     {% endblock %}

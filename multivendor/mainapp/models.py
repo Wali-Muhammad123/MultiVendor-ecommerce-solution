@@ -32,14 +32,14 @@ class Retailer(models.Model):
     def __str__(self):
         return self.name
 class ProductDetails(models.Model):
-    CATEGORY_CHOICES=(
+    CATEGORY_CHOICES=[
         ('Electronics','Electronics'),
         ('Clothing','Clothing'),
         ('Footwear','Footwear'),
         ('Home Appliances','Home Appliances'),
-        ('Mobiles','Mobiles')
-        ('Groceries','Groceries')
-    )
+        ('Mobiles','Mobiles'),
+        ('Groceries','Groceries'),
+    ]
     id=models.AutoField(primary_key=True)
     category=models.CharField(choices=CATEGORY_CHOICES, max_length=20)
     name=models.CharField(max_length=30)

@@ -1,15 +1,16 @@
-from .views import *
+from . import views 
 from django.urls import path
-from django.conf.urls import url
-app_name = 'mainapp'
+app_name='mainapp'
 urlpatterns = [
-    path('', index, name='index'),
-    path('login/', login, name='login'),
-    path('register/', register, name='register'),
-    path('logout/', logout, name='logout'),
+    path('', views.index, name='index'),
+    path('login/', views.login, name='login'),
+    path('register/', views.register, name='register'),
+    path('logout/', views.logout, name='logout'),
     path(
         'product/<int:product_id>/',
-        product,
+        views.product,
         name='product'
     ),
+    path('search/', views.search, name='search'),
+    path('retailer/', views.RetailerView.as_view(), name='retailer'),
 ]

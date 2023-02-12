@@ -12,11 +12,11 @@ from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
 def index(request):
-    products=Product.objects.all()[:20]
+    products=ProductDetails.objects.all()[:20]
     context={
         'products':products
     }
-    return render(request, 'mainapp/index.html', context)
+    return render(request, 'index.html', context)
 def register(request):
     if request.method=='POST':
         username=request.POST['username']
@@ -27,17 +27,17 @@ def register(request):
         phone=request.POST['phone']
         try:
             if User.objects.filter(email=email).exists():
-                return render(request, 'mainapp/register.html', context={'msg':'Email already exists'})
+                return render(request, 'register.html', context={'msg':'Email already exists'})
             if User.objects.filter(username=username).exists():
-                return render(request, 'mainapp/register.html', context={'msg':'Username already exists'})
+                return render(request, 'register.html', context={'msg':'Username already exists'})
             else:
                 user=User.objects.create_user(username=username, email=email, password=password)
                 user.save()
                 Retailer_detailes=user.retailer_set(user=user,name=name,phone=phone,address=address)
         except: 
-            return render(request, 'mainapp/register.html', context={'msg':'Unknown error occured'})
-        return render(request, 'mainapp/login.html')
-    return render(request, 'mainapp/register.html',content_type={'msg':''})
+            return render(request, 'register.html', context={'msg':'Unknown error occured'})
+        return render(request, 'login.html')
+    return render(request, 'register.html',content_type={'msg':''})
 def login(request):
     if request.method=='POST':
         username=request.POST['username']
@@ -45,14 +45,13 @@ def login(request):
         user=authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return render(request, 'mainapp/index.html')
+            return render(request, 'index.html')
         else:
-            return render(request, 'mainapp/login.html', context={'msg':'Invalid credentials'})
-    return render(request, 'mainapp/login.html', context={'msg':''})
+            return render(request, 'login.html', context={'msg':'Invalid credentials'})
+    return render(request, 'login.html', context={'msg':''})
 def logout(request):
     logout(request)
-    return render(request, 'mainapp/index.html')
-@csrf_exempt()
+    return render(request, 'index.html')
 def search(request):
     try:
         query=request.GET['query']
@@ -80,7 +79,7 @@ class RetailerView(LoginRequiredMixin,View):
             'total_inventory':total_inventory,
             'total_profit':total_profit
         }
-        return render(request, 'mainapp/retailer.html', context)
+        return render(request, 'retailer.html', context)
     def post(self, request):
         try:
             retailer=Retailer.objects.filter(user=request.user)
@@ -137,5 +136,7 @@ class RetailerView(LoginRequiredMixin,View):
             return JsonResponse({'msg':'Product deleted successfully'})
         except ObjectDoesNotExist:
             return JsonResponse({'msg':'Product does not exist'})
+def product(request): 
+    pass
 
 

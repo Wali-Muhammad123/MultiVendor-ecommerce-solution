@@ -23,7 +23,7 @@
                     <li class="nav-item"><a class="nav-link active" href="#">Your Cart</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Promotions</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Become a Retailer</a></li>
-                </ul><a class="btn btn-primary ms-md-2" role="button" href="#">Sign In</a>
+                </ul><a class="btn btn-primary ms-md-2" role="button" href="{% url 'mainapp:login' %}">Sign In</a>
             </div>
         </div>
     </nav>
@@ -75,5 +75,7 @@
     </div>
     <hr>
     <div data-reflow-type="product-list" data-reflow-layout="cards" data-reflow-order="name_asc"></div>
-    {% includes 'footer.html' %} 
+
+    {% include 'footer.html' %} 
+
     {% endblock %} 

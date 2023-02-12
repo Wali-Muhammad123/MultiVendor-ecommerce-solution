@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'mainapp',
     'api',
     'rest_framework',
-    'boostrap5'
+    'bootstrap5'
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
