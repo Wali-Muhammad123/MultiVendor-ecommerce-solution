@@ -7,6 +7,8 @@ from django.views.generic import View
 from .models import *
 #import django exceptions 
 from django.core.exceptions import ObjectDoesNotExist
+#import django csrf exempt decorator
+from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
 def index(request):
@@ -50,13 +52,18 @@ def login(request):
 def logout(request):
     logout(request)
     return render(request, 'mainapp/index.html')
+@csrf_exempt()
 def search(request):
-    query=request.GET['query']
-    products=Product.objects.filter(name__icontains=query)
-    context={
+    try:
+        query=request.GET['query']
+        products=Product.objects.filter(name__icontains=query)
+        context={
         'products':products
-    }
-    return render(request, 'mainapp/search.html', context)
+         }
+        return JsonResponse(context, safe=False)
+    except ObjectDoesNotExist:
+        return JsonResponse({'msg':'No products found'}, safe=False)
+     
 class RetailerView(LoginRequiredMixin,View):
     login_url='/login/'
     def get(self,request):
@@ -75,13 +82,16 @@ class RetailerView(LoginRequiredMixin,View):
         }
         return render(request, 'mainapp/retailer.html', context)
     def post(self, request):
-        retailer=Retailer.objects.filter(user=request.user)
-        product_name=request.POST['product_name']
-        product_price=request.POST['product_price'] 
-        product_description=request.POST['product_description']
-        quantity=request.POST['product_quantity']
-        category=request.POST['category']
-        product_id=product_id(category,retailer,product_price)
+        try:
+            retailer=Retailer.objects.filter(user=request.user)
+            product_name=request.POST['product_name']
+            product_price=request.POST['product_price'] 
+            product_description=request.POST['product_description']
+            quantity=request.POST['product_quantity']
+            category=request.POST['category']
+            product_id=product_id(category,retailer,product_price)
+        except:
+            pass
     def product_id(category,retailer,price):
         if category=='Electronics':
             return 'E'+str(retailer.id)+str(price)
@@ -93,7 +103,7 @@ class RetailerView(LoginRequiredMixin,View):
             return 'M'+str(retailer.id)+str(price)
         elif category=='Home Appliances':
             return 'HA'+str(retailer.id)+str(price)
-        elif category =='Foot Wear':
+        elif category =='Footwear':
             return 'FW'+str(retailer.id)+str(price)
         else:
             raise Exception('Invalid category')
