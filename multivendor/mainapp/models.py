@@ -19,6 +19,10 @@ class User(AbstractBaseUser):
         return self.is_admin
     def has_module_perms(self,app_label):
         return True
+    def retailer_set(self,name,phone,address):
+        retailer=Retailer(user=self,name=name,phone=phone,address=address)
+        retailer.save()
+        return retailer
 class Retailer(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.OneToOneField(User,on_delete=models.CASCADE)
