@@ -1,10 +1,12 @@
 from django.shortcuts import render
-from rest_framework import APIView
-from rest_framework import Response
+from rest_framework.views import APIView
+#import response object from rest framework
+from rest_framework.response import Response
+
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-from .models import ProductDetails, Retailer_Product,Retailer
+from mainapp.models import ProductDetails, Retailer_Product,Retailer
 from rest_framework import generics
 from django.core.exceptions import ObjectDoesNotExist
 from .serializers import *
@@ -14,6 +16,22 @@ from rest_framework.parsers import JSONParser
 from rest_framework.renderers import JSONRenderer
 
 # Create your views here.
+
+def index(request):
+    pass
+def login(request):
+    pass
+def logout(request):
+    pass
+def profile(request):
+    pass
+def edit_profile(request):
+    pass
+def product(request):
+    pass
+def product_detail(request,id):
+    pass
+
 class ProductList(generics.ListAPIView):
     queryset = ProductDetails.objects.all()
     serializer_class = ProductSerializer
@@ -30,7 +48,7 @@ class ProductDetail(generics.RetrieveAPIView):
         serializer=ProductSerializer(queryset)
         json=JSONRenderer().render(serializer.data)
         return Response(json,status=status.HTTP_200_OK)
-class RetailerProductList(generics.APIView):
+class RetailerProductList(APIView):
     queryset=Retailer_Product.objects.all()
     serializer_class=RetailerProductSerializer
     permission_classes = [IsAuthenticated]
