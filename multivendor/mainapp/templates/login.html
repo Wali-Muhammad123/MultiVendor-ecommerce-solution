@@ -21,7 +21,7 @@
                                 </svg></div>
                             <form class="text-center" method="post" action="{% url 'mainapp:login' %}">
                                 {% csrf_token %}
-                                <div class="mb-3"><input class="form-control" type="text" name="email" placeholder="Username" id="name" required="required"></div>
+                                <div class="mb-3"><input class="form-control" type="email" name="email" placeholder="Username" id="name" required="required"></div>
                                 <div class="mb-3"><input class="form-control" type="password" name="password" placeholder="Password" id="password" required="required"></div>
                                 <div class="mb-3"><button class="btn btn-primary d-block w-100" type="submit" id="signin">Login</button></div>
                                 <p class="text-muted" id="signup">New to Retailer account? Signup now</p>

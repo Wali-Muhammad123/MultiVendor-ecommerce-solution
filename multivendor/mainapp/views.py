@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect
 from django.http import HttpResponse,JsonResponse
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate,views
+from django.contrib.auth import authenticate,views,login,logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import View
 from .models import *
@@ -26,16 +26,34 @@ def register(request):
         form=RetailerRegistrationForm()
     context={'form':form}
     return render(request, 'register.html', context=context)
-class Login(views.LoginView):
-    template_name='login.html'
-    redirect_authenticated_user=True
-    form_class=LoginPageForm
-    def get_success_url(self):
-        return redirect('mainapp:retailer')
-    def form_invalid(self,form):
-        messages.error(self.request, 'Invalid Username or Password')
-        return self.render_to_response(self.get_context_data(form=form))
-    
+#class Login(views.LoginView):
+    #template_name='login.html'
+    #redirect_authenticated_user=True
+    #form_class=LoginPageForm
+    #def get_success_url(self):
+     #   return redirect('mainapp:retailer')
+    #def form_invalid(self,form):
+     #   messages.error(self.request, 'Invalid Username or Password')
+      #  return self.render_to_response(self.get_context_data(form=form))
+def loginview(request):
+    if request.method=='POST':
+        email=request.POST['email']
+        password=request.POST['password']
+        if email and password:
+            try:
+                #authenticate user
+                user=authenticate(request,email=email,password=password)
+                login(request,user)
+                return redirect('mainapp:index')
+            except ObjectDoesNotExist:
+                return render(request,'login.html',context={'msg':'Invalid Credentials'})
+        else:
+            return render(request,'login.html',context={'msg':'Add both username and password'})
+    else:
+        return render(request,'login.html',context={'msg':''})
+
+            
+
 def logout(request):
     logout(request)
     return render(request, 'index.html')
@@ -70,27 +88,34 @@ class RetailerView(LoginRequiredMixin,View):
     def post(self, request):
         try:
             retailer=Retailer.objects.filter(user=request.user)
-            product_name=request.POST['product_name']
-            product_price=request.POST['product_price'] 
-            product_description=request.POST['product_description']
-            quantity=request.POST['product_quantity']
-            category=request.POST['category']
-            product_id=product_id(category,retailer,product_price)
+            product_name=request.POST.get('name')
+            product_price=request.POST.get('price') 
+            product_description=request.POST.get('product_description')
+            quantity=request.POST.get('quantity')
+            category=request.POST.get('category')
+            if product_name and product_price and product_description and quantity and category:
+                product_id=product_id(category,retailer,product_price)
+                product=Product(name=product_name,product_id=product_id,price=product_price,description=product_description,category=category)
+                product.save()
+                retailer_product=Retailer_Product(retailer=retailer,product=product,quantity_bought=quantity)
+                retailer_product.save()
+                return JsonResponse({'msg':'Product added successfully'})
+            
         except:
-            pass
+            return JsonResponse({'msg':'Error adding product'})
     def product_id(category,retailer,price):
         if category=='Electronics':
-            return 'E'+str(retailer.id)+str(price)
+            return 'e'+str(retailer.id)+str(price)
         elif category=='Clothing':
-            return 'C'+str(retailer.id)+str(price)
+            return 'c'+str(retailer.id)+str(price)
         elif category=='Groceries':
-            return 'G'+str(retailer.id)+str(price)
+            return 'g'+str(retailer.id)+str(price)
         elif category=='Mobiles':
-            return 'M'+str(retailer.id)+str(price)
+            return 'm'+str(retailer.id)+str(price)
         elif category=='Home Appliances':
-            return 'HA'+str(retailer.id)+str(price)
+            return 'ha'+str(retailer.id)+str(price)
         elif category =='Footwear':
-            return 'FW'+str(retailer.id)+str(price)
+            return 'fw'+str(retailer.id)+str(price)
         else:
             raise Exception('Invalid category')
     def put(self,request):

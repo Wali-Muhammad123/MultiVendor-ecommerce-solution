@@ -3,7 +3,7 @@ from .models import User
 from django.contrib.auth.forms import UserCreationForm 
 from .models import User
 from django.contrib.auth.forms import AuthenticationForm, UsernameField
-from django.forms import forms
+from django import forms
 
 
 class RetailerRegistrationForm(UserCreationForm):
@@ -20,6 +20,6 @@ class RetailerRegistrationForm(UserCreationForm):
         }
 class LoginPageForm(AuthenticationForm):
     username=UsernameField(widget=forms.TextInput(attrs={'class':'form-control','placeholder':'Username'}))
-    password=forms.CharField(label=_("Password"),attrs={'class':"form-control",'placeholder':'Password'},strip=False)
+    password=forms.CharField(label=("Password"),widget=forms.PasswordInput(attrs={'class':"form-control",'placeholder':'Password'}),strip=False)
 
 

@@ -33,14 +33,14 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="text-center card-title">Profit made till this date</h4><span style="font-size: 64px;text-align: center;margin-left: 125px;color: var(--bs-gray-800);">50$</span>
+                        <h4 class="text-center card-title">Profit made till this date</h4><span style="font-size: 64px;text-align: center;margin-left: 125px;color: var(--bs-gray-800);">{{ total_profit }}$</span>
                     </div>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title" style="text-align: center;">Total items in inventory</h4><span style="font-size: 64px;margin-left: 154px;color: var(--bs-gray-800);">10</span>
+                        <h4 class="card-title" style="text-align: center;">Total items in inventory</h4><span style="font-size: 64px;margin-left: 154px;color: var(--bs-gray-800);">{{ total_inventory }}</span>
                     </div>
                 </div>
             </div>
@@ -72,25 +72,27 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {% for i in inventory %}
                         <tr>
-                            <td>Text</td>
-                            <td>Text</td>
-                            <td>Text</td>
-                            <td>Text</td>
-                            <td>Text</td>
-                            <td>Cell 1</td>
-                            <td>Cell 2</td>
-                            <td>Text</td>
+                            <td>{i.name}</td>
+                            <td>{i.category}</td>
+                            <td>{i.purchased_amount}</td>
+                            <td>{ i.quantity_bought}</td>
+                            <td>{i.sales}</td>
+                            <td>{i.quantity_sold}</td>
+                            <td>{i.profit}</td>
+                            <td>{i.stock}</td>
                         </tr>
+                        {% endfor %}
                         <tr>
                             <td style="font-weight: bold;">Total&nbsp;</td>
                             <td></td>
-                            <td style="font-weight: bold;">50$</td>
-                            <td style="font-weight: bold;">50</td>
-                            <td style="font-weight: bold;">70$</td>
-                            <td style="font-weight: bold;">42</td>
-                            <td style="font-weight: bold;">82$</td>
-                            <td style="font-weight: bold;">8</td>
+                            <td style="font-weight: bold;">{{ total_purchase_amount }}</td>
+                            <td style="font-weight: bold;">{{ total_purchased_quanity }}</td>
+                            <td style="font-weight: bold;">{{ total_sales_amount }}</td>
+                            <td style="font-weight: bold;">{{ total_sales_volume }}</td>
+                            <td style="font-weight: bold;">{{ total_profit }}</td>
+                            <td style="font-weight: bold;">{{ in_stock }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -120,7 +122,7 @@
                         <div class="card-body">
                             <h4 class="card-title">Details of New Product</h4>
                             <h6 class="text-muted card-subtitle mb-2">Enter the details of the new product and we will ship it to right away for you.</h6>
-                            <form>
+                            <form id="add_product_form" method="post" action="">
                                 {% csrf_token %}
                                 <div style="display: flex;margin-top: 15px;"><label class="form-label" style="font-weight: bold;text-align: left;font-family: Poppins, sans-serif;">Name</label><input class="form-control" type="text" style="margin-left: 89px;width: 505.734px;" id="name"></div>
                                 <div style="display: flex;margin-top: 15px;"><label class="form-label" style="font-weight: bold;font-family: Poppins, sans-serif;">Product Price</label><input class="form-control" type="number" style="width: 480.594px;margin-left: 33px;" id="price"></div>
@@ -135,7 +137,8 @@
                                         <option value="Mobiles ">Mobiles </option>
                                         <option value="Groceries">Groceries</option>
                                     </select></div>
-                                <div><button class="btn btn-primary" type="submit" style="margin-top: 25px;">Add to inventory</button></div>
+                                <div id="x"><button class="btn btn-primary" type="submit" style="margin-top: 25px;">Add to inventory</button></div>
+
                             </form>
                         </div>
                     </div>
@@ -147,11 +150,11 @@
                             <h6 class="text-muted card-subtitle mb-2">Update your inventory. Change a product's name, price, or quantity, or just simply delete that product from the list.&nbsp;</h6>
                             <div style="margin-top: 23px;">
                                 <div class="d-flex justify-content-center h-100" style="width: 547px;">
-                                    <div class="searchbar"><input type="text" class="search_input" placeholder="Enter Product ID"><a class="search_icon" href="#"><i class="fas fa-search"></i></a></div>
+                                    <div class="searchbar"><input type="text" class="search_input" placeholder="Enter Product ID" id="user-input"><a class="search_icon" href="#"><i class="fas fa-search"></i></a></div>
                                 </div>
                             </div>
                             <div style="margin-top: 26px;">
-                                <form>
+                                <form id="update">
                                     {% csrf_token %}
                                     <div style="display: flex;margin-top: 15px;"><label class="form-label" style="font-weight: bold;text-align: left;font-family: Poppins, sans-serif;">Name</label><input class="form-control" type="text" style="margin-left: 89px;width: 505.734px;" id="_name"></div>
                                     <div style="display: flex;margin-top: 15px;"><label class="form-label" style="font-weight: bold;font-family: Poppins, sans-serif;">Product Price</label><input class="form-control" type="number" style="width: 480.594px;margin-left: 33px;" id="_tel"></div>
@@ -175,5 +178,126 @@
             </div>
         </div>
     </section>
+    <script>
+        $(document).ready(function(){
+
+            $('#add_product_form').on('submit', function(e){
+                e.preventDefault();
+                var name=$('#name').val();
+                var price=$('#price').val();
+                var category=$('#category').val();
+                var product_description=$('#desc').val();
+                var quantity=$('#quantity').val();
+                if (category == "0"){
+                    $('#x').append(
+                        <div>
+                            <p> Please choose a category of the product </p>
+                            </div>
+                    );
+                }
+                else {
+                    $.ajax({
+                        url: "{% url 'mainapp:retailer' %}",
+                        type: "POST",
+                        data: {
+                            'name': name,
+                            'price': price,
+                            'category': category,
+                            'product_description': product_description,
+                            'quantity': quantity,
+                            'csrfmiddlewaretoken': '{{ csrf_token }}'
+                        },
+                        success: function (response) {
+                            console.log(response);
+                            if (response == "success") {
+                                alert("Product added successfully");
+                            }
+                            else {
+                                alert("Product not added");
+                            }
+                        }
+                    });
+                }
+
+            });
+            $('#update').on('submit', function(e){
+                e.preventDefault();
+                var name=$('#_name').val();
+                var price=$('#_tel').val();
+                var category=$('#_category').val();
+                var product_description=$('#_desc').val();
+                var quantity=$('#_quantity').val();
+                if (category == "0"){
+                    $('#x').append(
+                        <div>
+                            <p> Please choose a category of the product </p>
+                            </div>
+                    );
+                }
+                else if (name == "" || price == "" || product_description == "" || quantity == "") {
+                    $('#x').append(
+                        <div>
+                            <p> Please select a product which is needed to be updated from the search bar.</p>
+                            </div>
+                    );
+                }
+                else {
+                    $.ajax({
+                        url: "{% url 'mainapp:retailer' %}",
+                        type: "PUT",
+                        data: {
+                            'name': name,
+                            'price': price,
+                            'category': category,
+                            'product_description': product_description,
+                            'quantity': quantity,
+                            'csrfmiddlewaretoken': '{{ csrf_token }}'
+                        },
+                        success: function (response) {
+                            console.log(response);
+                            if (response == "success") {
+                                alert("Product added successfully");
+                            }
+                            else {
+                                alert("Product not added");
+                            }
+                        }
+                    });
+                }
+            });
+        });
+        $('#user-input').on('keyup', function(){
+            var search = $(this).val().lower();
+            var productID=[]
+            for (var i of {inventory}){
+                productID.push(i.product_id.lower());
+            }
+            if (search.length>0){
+                var filtered = productID.filter(function (item) {
+                    return item.indexOf(search.toLowerCase()) > -1;
+                });
+                for (var k of filtered){
+                    $(this).append(
+                        <div>
+                            <p class="searchresult"> {{k}} </p>
+                        </div>
+                    );
+                }
+            
+            }
+        });
+    $('.searchresult').onclick(function(e){
+        var product_id = $(this).text();
+        var product = {inventory}.filter(function (item) {
+                    return item.product_id.lower() == product_id;
+                });
+        $('#_name').val(product[0].product_name);
+        $('#_tel').val(product[0].product_price);
+        $('#_desc').val(product[0].product_description);
+        $('#_quantity').val(product[0].quantity);
+        $('#_category').val(product[0].category);
+
+    });
+    </script>
     {% include 'footer.html' %}
     {% endblock %}
