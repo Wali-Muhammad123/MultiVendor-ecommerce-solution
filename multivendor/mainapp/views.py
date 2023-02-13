@@ -11,7 +11,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from .forms import *
 # Create your views here.
 def index(request):
-    products=ProductDetails.objects.all()[:20]
+    products=ProductDetails.objects.all()
     context={
         'products':products
     }
