@@ -17,21 +17,6 @@ from rest_framework.renderers import JSONRenderer
 
 # Create your views here.
 
-def index(request):
-    pass
-def login(request):
-    pass
-def logout(request):
-    pass
-def profile(request):
-    pass
-def edit_profile(request):
-    pass
-def product(request):
-    pass
-def product_detail(request,id):
-    pass
-
 class ProductList(generics.ListAPIView):
     queryset = ProductDetails.objects.all()
     serializer_class = ProductSerializer
