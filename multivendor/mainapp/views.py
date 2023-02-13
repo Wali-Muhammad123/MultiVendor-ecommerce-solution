@@ -1,15 +1,14 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.http import HttpResponse,JsonResponse
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate,login,logout
+from django.contrib.auth import authenticate,views
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import View
 from .models import *
+from django.contrib import messages
 #import django exceptions 
 from django.core.exceptions import ObjectDoesNotExist
-#import django csrf exempt decorator
-from django.views.decorators.csrf import csrf_exempt
-
+from .forms import *
 # Create your views here.
 def index(request):
     products=ProductDetails.objects.all()[:20]
@@ -19,36 +18,24 @@ def index(request):
     return render(request, 'index.html', context)
 def register(request):
     if request.method=='POST':
-        username=request.POST['username']
-        email=request.POST['email']
-        password=request.POST['password']
-        name=request.POST['name']
-        address=request.POST['address']
-        phone=request.POST['phone']
-        try:
-            if User.objects.filter(email=email).exists():
-                return render(request, 'register.html', context={'msg':'Email already exists'})
-            if User.objects.filter(username=username).exists():
-                return render(request, 'register.html', context={'msg':'Username already exists'})
-            else:
-                user=User.objects.create_user(username=username, email=email, password=password)
-                user.save()
-                Retailer_detailes=user.retailer_set(user=user,name=name,phone=phone,address=address)
-        except: 
-            return render(request, 'register.html', context={'msg':'Unknown error occured'})
-        return render(request, 'login.html')
-    return render(request, 'register.html',content_type={'msg':''})
-def login(request):
-    if request.method=='POST':
-        username=request.POST['username']
-        password=request.POST['password']
-        user=authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return render(request, 'index.html')
-        else:
-            return render(request, 'login.html', context={'msg':'Invalid credentials'})
-    return render(request, 'login.html', context={'msg':''})
+        form=RetailerRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('mainapp:login')
+    else:
+        form=RetailerRegistrationForm()
+    context={'form':form}
+    return render(request, 'register.html', context=context)
+class Login(views.LoginView):
+    template_name='login.html'
+    redirect_authenticated_user=True
+    form_class=LoginPageForm
+    def get_success_url(self):
+        return redirect('mainapp:retailer')
+    def form_invalid(self,form):
+        messages.error(self.request, 'Invalid Username or Password')
+        return self.render_to_response(self.get_context_data(form=form))
+    
 def logout(request):
     logout(request)
     return render(request, 'index.html')
