@@ -1,7 +1,8 @@
 from django.shortcuts import render,redirect
 from django.http import HttpResponse,JsonResponse
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate,views,login,logout
+from django.contrib.auth import authenticate,login,logout
+from django.contrib.auth.views import LoginView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import View
 from .models import *
@@ -26,31 +27,37 @@ def register(request):
         form=RetailerRegistrationForm()
     context={'form':form}
     return render(request, 'register.html', context=context)
-#class Login(views.LoginView):
+#class Login(LoginView):
     #template_name='login.html'
     #redirect_authenticated_user=True
     #form_class=LoginPageForm
     #def get_success_url(self):
-     #   return redirect('mainapp:retailer')
+        #super().__init__(self,*args,*kwargs)
+        #return redirect('mainapp:retailer')
     #def form_invalid(self,form):
-     #   messages.error(self.request, 'Invalid Username or Password')
-      #  return self.render_to_response(self.get_context_data(form=form))
+        #super().__init__(self,*args,**kwargs)
+        #return self.render_to_response(self.get_context_data(form=form))
+
 def loginview(request):
     if request.method=='POST':
-        email=request.POST['email']
-        password=request.POST['password']
-        if email and password:
+        form=LoginPageForm(request.POST)
+        if form.is_valid():
             try:
                 #authenticate user
-                user=authenticate(request,email=email,password=password)
+                username=request.POST.get('username')
+                password=request.POST.get('password')
+                user=authenticate(request,username=username,password=password)
                 login(request,user)
                 return redirect('mainapp:index')
             except ObjectDoesNotExist:
-                return render(request,'login.html',context={'msg':'Invalid Credentials'})
+                loginform=LoginPageForm()
+                return render(request,'login.html',context={'msg':'Invalid Credentials','form':loginform})
         else:
-            return render(request,'login.html',context={'msg':'Add both username and password'})
+            loginform=LoginPageForm()
+            return render(request,'login.html',context={'msg':'Add both username and password','form':loginform})
     else:
-        return render(request,'login.html',context={'msg':''})
+        loginform=LoginPageForm()
+        return render(request,'login.html',context={'msg':'','form':loginform})
 
             
 
