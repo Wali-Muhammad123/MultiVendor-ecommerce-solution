@@ -22,7 +22,11 @@ def register(request):
         form=RetailerRegistrationForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('mainapp:login')
+            username=form.cleaned_data.get('username')
+            password=form.cleaned_data.get('password1')
+            user=authenticate(username=username,password=password)
+            login(request,user)
+            return redirect('mainapp:retailer')
     else:
         form=RetailerRegistrationForm()
     context={'form':form}
@@ -40,13 +44,13 @@ def register(request):
 
 def loginview(request):
     if request.method=='POST':
-        form=LoginPageForm(request.POST)
+        form=LoginPageForm(request, data=request.POST)
         if form.is_valid():
             try:
                 #authenticate user
-                username=request.POST.get('username')
-                password=request.POST.get('password')
-                user=authenticate(request,username=username,password=password)
+                username=form.cleaned_data.get('username')
+                password=form.cleaned_data.get('password')
+                user=authenticate(username=username,password=password)
                 login(request,user)
                 return redirect('mainapp:index')
             except ObjectDoesNotExist:
