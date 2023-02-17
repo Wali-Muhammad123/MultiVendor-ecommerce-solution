@@ -1,0 +1,121 @@
+<script>
+    $(document).ready(function(){
+
+        $('#add_product_form').on('submit', function(e){
+            e.preventDefault();
+            var name=$('#name').val();
+            var price=$('#price').val();
+            var category=$('#category').val();
+            var product_description=$('#desc').val();
+            var quantity=$('#quantity').val();
+            if (category == "0"){
+                $('#x').append(
+                    <div>
+                        <p> Please choose a category of the product </p>
+                        </div>
+                );
+            }
+            else {
+                $.ajax({
+                    url: "{% url 'mainapp:retailer' %}",
+                    type: "POST",
+                    data: {
+                        'name': name,
+                        'price': price,
+                        'category': category,
+                        'product_description': product_description,
+                        'quantity': quantity,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function (response) {
+                        console.log(response);
+                        if (response == "success") {
+                            alert("Product added successfully");
+                        }
+                        else {
+                            alert("Product not added");
+                        }
+                    }
+                });
+            }
+
+        });
+        $('#update').on('submit', function(e){
+            e.preventDefault();
+            var name=$('#_name').val();
+            var price=$('#_tel').val();
+            var category=$('#_category').val();
+            var product_description=$('#_desc').val();
+            var quantity=$('#_quantity').val();
+            if (category == "0"){
+                $('#x').append(
+                    <div>
+                        <p> Please choose a category of the product </p>
+                        </div>
+                );
+            }
+            else if (name == "" || price == "" || product_description == "" || quantity == "") {
+                $('#x').append(
+                    <div>
+                        <p> Please select a product which is needed to be updated from the search bar.</p>
+                        </div>
+                );
+            }
+            else {
+                $.ajax({
+                    url: "{% url 'mainapp:retailer' %}",
+                    type: "PUT",
+                    data: {
+                        'name': name,
+                        'price': price,
+                        'category': category,
+                        'product_description': product_description,
+                        'quantity': quantity,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function (response) {
+                        console.log(response);
+                        if (response == "success") {
+                            alert("Product added successfully");
+                        }
+                        else {
+                            alert("Product not added");
+                        }
+                    }
+                });
+            }
+        });
+    });
+    $('#user-input').on('keyup', function(){
+        var search = $(this).val().lower();
+        var productID=[]
+        for (var i of {inventory}){
+            productID.push(i.product_id.lower());
+        }
+        if (search.length>0){
+            var filtered = productID.filter(function (item) {
+                return item.indexOf(search.toLowerCase()) > -1;
+            });
+            for (var k of filtered){
+                $(this).append(
+                    <div>
+                        <p class="searchresult"> {{k}} </p>
+                    </div>
+                );
+            }
+        
+        }
+    });
+$('.searchresult').onclick(function(e){
+    var product_id = $(this).text();
+    var product = {inventory}.filter(function (item) {
+                return item.product_id.lower() == product_id;
+            });
+    $('#_name').val(product[0].product_name);
+    $('#_tel').val(product[0].product_price);
+    $('#_desc').val(product[0].product_description);
+    $('#_quantity').val(product[0].quantity);
+    $('#_category').val(product[0].category);
+
+});
+</script>
