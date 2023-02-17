@@ -14,12 +14,13 @@ from django.contrib.auth.models import User, BaseUserManager,AbstractBaseUser
 
 class Retailer(models.Model):
     id=models.AutoField(primary_key=True)
-    user=models.OneToOneField(CustomUser,on_delete=models.CASCADE)
+    user=models.OneToOneField(User,on_delete=models.CASCADE)
     phone_number=models.CharField(max_length=11, default=None)
     name=models.CharField(max_length=100, default=None)
     address=models.CharField(max_length=100, default=None)
     def __str__(self):
         return self.name
+
 class ProductDetails(models.Model):
     CATEGORY_CHOICES=[
         ('Electronics','Electronics'),
