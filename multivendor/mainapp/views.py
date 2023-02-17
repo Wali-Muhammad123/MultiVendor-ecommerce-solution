@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect
 from django.http import HttpResponse,JsonResponse
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate,login,logout
+from django.contrib.auth import authenticate,login,logout as auth_logout
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import View
@@ -19,17 +19,21 @@ def index(request):
     return render(request, 'index.html', context)
 def register(request):
     if request.method=='POST':
-        form=RetailerRegistrationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username=form.cleaned_data.get('username')
-            password=form.cleaned_data.get('password1')
-            user=authenticate(username=username,password=password)
+        registeruser=RetailerRegistrationForm(request.POST)
+        registerretailer=UpdateProfileForm(request.POST)
+        if registeruser.is_valid() and registerretailer.is_valid():
+            form1=registeruser.save()
+            form2=registerretailer.save(commit=False)
+            form2.user=form1
+            form2.name=form1.first_name+' '+form1.last_name
+            form2.save()
+            user=authenticate(username=form1.username,password=form1.password)
             login(request,user)
             return redirect('mainapp:index')
     else:
-        form=RetailerRegistrationForm()
-    context={'form':form}
+        registeruser=RetailerRegistrationForm()
+        registerretailer=UpdateProfileForm()
+    context={'reg1':registeruser,'reg2':registerretailer}
     return render(request, 'register.html', context=context)
 #class Login(LoginView):
     #template_name='login.html'
@@ -66,8 +70,8 @@ def loginview(request):
             
 
 def logout(request):
-    logout(request)
-    return render(request, 'index.html')
+    auth_logout(request)
+    return redirect('mainapp:index')
 def search(request):
     try:
         query=request.GET['query']
@@ -82,13 +86,19 @@ def search(request):
 class RetailerView(LoginRequiredMixin,View):
     login_url='/login/'
     def get(self,request):
-        retailer=Retailer.objects.filter(user=request.user)
-        inventory=Retailer_Product.objects.filter(retailer=retailer)
+        retailer=Retailer.objects.filter(user=self.request.user)
+        try:
+            inventory=Retailer_Product.objects.filter(retailer__in=retailer)
+        except ObjectDoesNotExist:
+            inventory=None
         total_inventory=0
         total_profit=0
-        for i in inventory:
-            total_inventory+=i.quantity_bought
-            total_profit+=i.profit()
+        if inventory:
+            for i in inventory:
+                total_inventory+=i.quantity_bought
+                total_profit+=i.profit()
+        else:
+            inventory=None
         context={
             'retailer':retailer,
             'inventory':inventory,
@@ -161,5 +171,19 @@ class RetailerView(LoginRequiredMixin,View):
             return JsonResponse({'msg':'Product does not exist'})
 def product(request): 
     pass
+@login_required(login_url='/login/')
+def profile(request):
+    if request.method=='POST':
+        profileform=UpdateProfileForm(request.POST,instance=request.user)
+        if profileform.is_valid():
+            profileform.save()
+            return redirect('mainapp:profile')
+    else:
+        profileform=UpdateProfileForm(instance=request.user)
+    context={'form':profileform}
+    return render(request, 'profile.html', context=context)
+@login_required(login_url='/login/')
+def report(request):
+    pass 
 
 

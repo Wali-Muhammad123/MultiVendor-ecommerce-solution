@@ -21,7 +21,8 @@
                                 </svg></div>
                             <form class="text-center" method="post" action="">
                                 {% csrf_token %}
-                                {{ form.as_p }}
+                                {{ reg1.as_p }}
+                                {{ reg2.as_p }}
                                 {% for error in form.non_field_errors %}
                                 <div class="alert alert-danger" role="alert">
                                     {{ error }}

@@ -14,4 +14,6 @@ urlpatterns = [
     ),
     path('search/', views.search, name='search'),
     path('retailer/', views.RetailerView.as_view(), name='retailer'),
+    path('profile/',views.profile,name='profile'),
+    path('report/',views.report,name='report'),
 ]
