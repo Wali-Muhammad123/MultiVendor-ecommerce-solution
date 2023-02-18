@@ -10,6 +10,7 @@ from django.contrib import messages
 #import django exceptions 
 from django.core.exceptions import ObjectDoesNotExist
 from .forms import *
+from . import utils
 # Create your views here.
 def index(request):
     products=ProductDetails.objects.all()
@@ -86,7 +87,8 @@ def search(request):
 class RetailerView(LoginRequiredMixin,View):
     login_url='/login/'
     def get(self,request):
-        retailer=Retailer.objects.filter(user=self.request.user)
+        form=ProductForm()
+        retailer=Retailer.objects.get_or_create(user=self.request.user)
         try:
             inventory=Retailer_Product.objects.filter(retailer__in=retailer)
         except ObjectDoesNotExist:
@@ -100,45 +102,29 @@ class RetailerView(LoginRequiredMixin,View):
         else:
             inventory=None
         context={
-            'retailer':retailer,
+            'retailer':retailer[0],
             'inventory':inventory,
             'total_inventory':total_inventory,
-            'total_profit':total_profit
+            'total_profit':total_profit,
+            'form':form
         }
         return render(request, 'retailer.html', context)
     def post(self, request):
-        try:
-            retailer=Retailer.objects.filter(user=request.user)
-            product_name=request.POST.get('name')
-            product_price=request.POST.get('price') 
-            product_description=request.POST.get('product_description')
-            quantity=request.POST.get('quantity')
-            category=request.POST.get('category')
-            if product_name and product_price and product_description and quantity and category:
-                product_id=product_id(category,retailer,product_price)
-                product=Product(name=product_name,product_id=product_id,price=product_price,description=product_description,category=category)
-                product.save()
-                retailer_product=Retailer_Product(retailer=retailer,product=product,quantity_bought=quantity)
-                retailer_product.save()
-                return JsonResponse({'msg':'Product added successfully'})
-            
-        except:
-            return JsonResponse({'msg':'Error adding product'})
-    def product_id(category,retailer,price):
-        if category=='Electronics':
-            return 'e'+str(retailer.id)+str(price)
-        elif category=='Clothing':
-            return 'c'+str(retailer.id)+str(price)
-        elif category=='Groceries':
-            return 'g'+str(retailer.id)+str(price)
-        elif category=='Mobiles':
-            return 'm'+str(retailer.id)+str(price)
-        elif category=='Home Appliances':
-            return 'ha'+str(retailer.id)+str(price)
-        elif category =='Footwear':
-            return 'fw'+str(retailer.id)+str(price)
+        form=ProductForm(request.POST)
+        if form.is_valid():
+            retailer=Retailer.objects.get_or_create(user=self.request.user)
+            product_name=form.cleaned_data.get('name')
+            product_price=form.cleaned_data.get('price')
+            product_description=form.cleaned_data.get('description')
+            quantity=form.cleaned_data.get('quantity')
+            category=str(form.cleaned_data.get('category'))
+            product_id=utils.productidgen(category, retailer[0].id, int(product_price))
+            print(category)
+            product=ProductDetails.objects.create(product_id=product_id,name=product_name,price=product_price,description=product_description,category=category)
+            retailer_product=Retailer_Product.objects.create(product=product,retailer=retailer[0],quantity_bought=quantity)
+            return redirect('mainapp:retailer')
         else:
-            raise Exception('Invalid category')
+            return JsonResponse({'msg':'Unknown error occured'}, safe=False)
     def put(self,request):
         try:
             retailer=Retailer.objects.filter(user=request.user)
