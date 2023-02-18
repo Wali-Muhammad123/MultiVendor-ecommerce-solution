@@ -22,7 +22,7 @@
     <section class="py-4 py-xl-5">
         <div class="container">
             <div class="text-white bg-dark border rounded border-0 p-4 p-md-5">
-                <h2 class="fw-bold text-white mb-3">Hello, {{retailer.name}}.</h2>
+                <h2 class="fw-bold text-white mb-3">Hello, {{ retailer.name }}.</h2>
                 <p class="mb-4">Have a look at your inventory, and increase it. Have a look at your sales metric and gain a clear understanding of where the business is going.&nbsp;</p>
                 <div class="my-3"><a class="btn btn-primary btn-lg me-2" role="button" href="#">Generate Report&nbsp;</a><a class="btn btn-light btn-lg" role="button" href="#">Report an issue</a></div>
             </div>
@@ -124,21 +124,8 @@
                             <h6 class="text-muted card-subtitle mb-2">Enter the details of the new product and we will ship it to right away for you.</h6>
                             <form id="add_product_form" method="post" action="">
                                 {% csrf_token %}
-                                <div style="display: flex;margin-top: 15px;"><label class="form-label" style="font-weight: bold;text-align: left;font-family: Poppins, sans-serif;">Name</label><input class="form-control" type="text" style="margin-left: 89px;width: 505.734px;" id="name"></div>
-                                <div style="display: flex;margin-top: 15px;"><label class="form-label" style="font-weight: bold;font-family: Poppins, sans-serif;">Product Price</label><input class="form-control" type="number" style="width: 480.594px;margin-left: 33px;" id="price"></div>
-                                <div style="display: flex;margin: 16px 0px 0px;margin-top: 16px;"><label class="form-label" style="font-weight: bold;font-family: Poppins, sans-serif;">Product Description&nbsp;</label><input class="form-control" type="text" style="margin-left: 3px;" id="desc"></div>
-                                <div style="display: flex;margin-top: 15px;"><label class="form-label" style="font-weight: bold;font-family: Poppins, sans-serif;">Quantity</label><input class="form-control" type="number" style="width: 680.219px;margin-left: 71px;" id="quantity"></div>
-                                <div style="display: flex;margin-top: 16px;"><label class="form-label" style="font-weight: bold;font-family: Poppins, sans-serif;">Category&nbsp;</label><select class="form-select" style="margin-left: 62px;" id="category">
-                                        <option value="0" selected="">Choose a Category</option>
-                                        <option value="Electronics">Electronics</option>
-                                        <option value="Clothing">Clothing</option>
-                                        <option value="Footwear">Footwear</option>
-                                        <option value="Home Appliances">Home Appliances</option>
-                                        <option value="Mobiles ">Mobiles </option>
-                                        <option value="Groceries">Groceries</option>
-                                    </select></div>
+                                {{ form.as_p }}
                                 <div id="x"><button class="btn btn-primary" type="submit" style="margin-top: 25px;">Add to inventory</button></div>
-
                             </form>
                         </div>
                     </div>
@@ -178,6 +165,132 @@
             </div>
         </div>
     </section>
-    {% include 'retailerscript.html' %}
+    <script src="/static/js/jquery.min.js"></script>
+    <script>
+        $(document).ready(function(){
+
+        })
+    </script>
+    <script>
+        $(document).ready(function(){
+    
+            $('#add_product_form').on('submit', function(e){
+                e.preventDefault();
+                var name=$('#name').val();
+                var price=$('#price').val();
+                var category=$('#category').val();
+                var product_description=$('#desc').val();
+                var quantity=$('#quantity').val();
+                if (category == "0"){
+                    $('#x').append(
+                        <div>
+                            <p> Please choose a category of the product </p>
+                            </div>
+                    );
+                }
+                else {
+                    $.ajax({
+                        url: "{% url 'mainapp:retailer' %}",
+                        type: "POST",
+                        data: {
+                            'name': name,
+                            'price': price,
+                            'category': category,
+                            'product_description': product_description,
+                            'quantity': quantity,
+                            'csrfmiddlewaretoken': '{{ csrf_token }}'
+                        },
+                        success: function (response) {
+                            console.log(response);
+                            if (response == "success") {
+                                alert("Product added successfully");
+                            }
+                            else {
+                                alert("Product not added");
+                            }
+                        }
+                    });
+                }
+    
+            });
+            $('#update').on('submit', function(e){
+                e.preventDefault();
+                var name=$('#_name').val();
+                var price=$('#_tel').val();
+                var category=$('#_category').val();
+                var product_description=$('#_desc').val();
+                var quantity=$('#_quantity').val();
+                if (category == "0"){
+                    $('#x').append(
+                        <div>
+                            <p> Please choose a category of the product </p>
+                            </div>
+                    );
+                }
+                else if (name == "" || price == "" || product_description == "" || quantity == "") {
+                    $('#x').append(
+                        <div>
+                            <p> Please select a product which is needed to be updated from the search bar.</p>
+                            </div>
+                    );
+                }
+                else {
+                    $.ajax({
+                        url: "{% url 'mainapp:retailer' %}",
+                        type: "PUT",
+                        data: {
+                            'name': name,
+                            'price': price,
+                            'category': category,
+                            'product_description': product_description,
+                            'quantity': quantity,
+                            'csrfmiddlewaretoken': '{{ csrf_token }}'
+                        },
+                        success: function (response) {
+                            console.log(response);
+                            if (response == "success") {
+                                alert("Product added successfully");
+                            }
+                            else {
+                                alert("Product not added");
+                            }
+                        }
+                    });
+                }
+            });
+        });
+        $('#user-input').on('keyup', function(){
+            var search = $(this).val().lower();
+            var productID=[]
+            for (var i of {inventory}){
+                productID.push(i.product_id.lower());
+            }
+            if (search.length>0){
+                var filtered = productID.filter(function (item) {
+                    return item.indexOf(search.toLowerCase()) > -1;
+                });
+                for (var k of filtered){
+                    $(this).append(
+                        <div>
+                            <p class="searchresult"> {{k}} </p>
+                        </div>
+                    );
+                }
+            
+            }
+        });
+    $('.searchresult').onclick(function(e){
+        var product_id = $(this).text();
+        var product = {inventory}.filter(function (item) {
+                    return item.product_id.lower() == product_id;
+                });
+        $('#_name').val(product[0].product_name);
+        $('#_tel').val(product[0].product_price);
+        $('#_desc').val(product[0].product_description);
+        $('#_quantity').val(product[0].quantity);
+        $('#_category').val(product[0].category);
+    
+    });
+    </script>
     {% include 'footer.html' %}
     {% endblock %}

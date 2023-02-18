@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm 
 from django.contrib.auth.forms import AuthenticationForm, UsernameField
 from django import forms
-from .models import Retailer
+from .models import Retailer,ProductDetails
 
 class RetailerRegistrationForm(UserCreationForm):
     class Meta:
@@ -37,4 +37,15 @@ class UpdateProfileForm(forms.ModelForm):
         widgets={
             'phone':forms.TextInput(attrs={'class':'form-control','placeholder':'Phone'}),
             'address':forms.TextInput(attrs={'class':'form-control','placeholder':'Address'}),
+        }
+class ProductForm(forms.ModelForm):
+    class Meta:
+        model=ProductDetails
+        fields=('name','category','price','description')
+        widgets={
+            'name':forms.TextInput(attrs={'class':'form-control','style':'margin-left: 89px;width: 505.734px;'}),
+            'price':forms.NumberInput(attrs={'class':'form-control','style':'margin-left: 89px;width: 505.734px;'}),
+            'category':forms.Select(attrs={'class':'form-control','style':'margin-left: 89px;width: 505.734px;'},choices=ProductDetails.CATEGORY_CHOICES),
+            'description':forms.Textarea(attrs={'class':'form-control','style':'margin-left: 89px;width: 505.734px;'}),
+            'quantity':forms.NumberInput(attrs={'class':'form-control','style':'margin-left: 89px;width: 505.734px;'}),
         }

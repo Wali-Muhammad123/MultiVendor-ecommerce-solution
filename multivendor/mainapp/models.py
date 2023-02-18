@@ -41,8 +41,8 @@ class Retailer_Product(models.Model):
     id=models.AutoField(primary_key=True)
     retailer=models.ForeignKey(Retailer,on_delete=models.CASCADE)
     product=models.ForeignKey(ProductDetails,on_delete=models.CASCADE)
-    quantity_bought=models.IntegerField(default=0)
-    quantity_sold=models.IntegerField(default=0)
+    quantity_bought=models.IntegerField(default=0,null=True,blank=True)
+    quantity_sold=models.IntegerField(default=0,null=True,blank=True)
     def purchased_amount(self):
         return self.quantity_bought*self.product.price
     def sold_amount(self):
@@ -55,10 +55,12 @@ class Retailer_Product(models.Model):
         return self.retailer.name+" "+self.product.name
     def save(self,*args,**kwargs):
         #add validation for quantity_bought and quantity_sold
-        if self.quantity_sold>self.quantity_bought:
-            raise ValueError("Quantity sold cannot be greater than quantity bought")
-        elif self.quantity_sold<0 or self.quantity_bought<=0:
-            raise ValueError("Quantity bought cannot be negative or zero. Should be at least one.")
-        else:
+        try:
+            if self.quantity_sold>self.quantity_bought:
+                raise ValueError("Quantity sold cannot be greater than quantity bought")
+            elif self.quantity_sold<0 or self.quantity_bought<=0:
+                raise ValueError("Quantity bought cannot be negative or zero. Should be at least one.")
+            else:
+                super().save(*args,**kwargs)
+        except TypeError:
             super().save(*args,**kwargs)
-    
